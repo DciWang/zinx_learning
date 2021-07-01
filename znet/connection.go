@@ -27,9 +27,14 @@ func (c *connection) StartRead() {
 	for {
 		buf := make([]byte, 512)
 		read, err := c.Conn.Read(buf)
-		if err {
+		if err != nil {
 			fmt.Printf("connection read failed,%s\n", err)
 			continue
+		}
+
+		if err := c.handleAPI(c.Conn, buf, read); err != nil {
+			fmt.Printf("connection handle  failed,%s,connection id :%s\n", err, c.ConnID)
+			break
 		}
 
 	}

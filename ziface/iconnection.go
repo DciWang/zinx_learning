@@ -18,4 +18,4 @@ type iConnection interface {
 }
 
 //delimit a func to hand business
-type HandleFunc func(**net.Conn, []byte, int) error
+type HandleFunc func(net.Conn, []byte, int) error
