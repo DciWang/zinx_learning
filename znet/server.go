@@ -20,6 +20,17 @@ type Server struct {
 	Port int
 }
 
+func handleFun(con net.Conn, buf []byte, cunt int) error {
+	//business echo
+	fmt.Println("[Conn Handle CallBack to client]")
+	_, err := con.Write(buf[:cunt])
+	if err != nil {
+		fmt.Printf("connection handle callcack failed")
+		return err
+	}
+	return nil
+}
+
 /**
 start a server
 */
@@ -40,6 +51,8 @@ func (s *Server) Start() {
 		}
 		fmt.Printf("listener IPVersion:%s adress success\n", s.IPVersion)
 		//3 Blocking  waiting  for client connection,processing(处理) the client  connection	of business(业务) (read and write)
+		var connId uint32
+		connId = 0
 		for {
 			tcp, err := listener.AcceptTCP()
 			if err != nil {
@@ -47,23 +60,27 @@ func (s *Server) Start() {
 				continue
 			}
 			//has established(建立)  a connection with the client ,
-			go func() {
-				for {
-					buf := make([]byte, 512)
-					read, err := tcp.Read(buf)
-					if err != nil {
-						fmt.Printf("recive buf failed,%s\n", err)
-						continue
+			/*		go func() {
+					for {
+						buf := make([]byte, 512)
+						read, err := tcp.Read(buf)
+						if err != nil {
+							fmt.Printf("recive buf failed,%s\n", err)
+							continue
+						}
+						fmt.Printf("server call back: %s, cnt = %d\n", buf, read)
+						//echo
+						if _, err := tcp.Write(buf[:read]); err != nil {
+							fmt.Printf("write bacl failed,%s\n", err)
+							continue
+						}
 					}
-					fmt.Printf("server call back: %s, cnt = %d\n", buf, read)
-					//echo
-					if _, err := tcp.Write(buf[:read]); err != nil {
-						fmt.Printf("write bacl failed,%s\n", err)
-						continue
-					}
-				}
-			}()
-
+				}()*/
+			//bind our business and connection
+			newConnection := NewConnection(tcp, connId, handleFun)
+			connId++
+			//start connection
+			newConnection.Start()
 		}
 	}()
 
