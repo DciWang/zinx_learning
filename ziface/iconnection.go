@@ -2,7 +2,7 @@ package ziface
 
 import "net"
 
-type iConnection interface {
+type IConnection interface {
 	//start the connection
 	Start()
 	//stop the connection
