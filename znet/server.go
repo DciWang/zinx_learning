@@ -18,9 +18,11 @@ type Server struct {
 	IP string
 	//the server's port
 	Port int
+	//current server add a router,server注册的链接对应的处理业务
+	Router ziface.IRouter
 }
 
-func handleFun(con net.Conn, buf []byte, cunt int) error {
+/*func handleFun(con net.Conn, buf []byte, cunt int) error {
 	//business echo
 	fmt.Println("[Conn Handle CallBack to client]")
 	_, err := con.Write(buf[:cunt])
@@ -29,7 +31,7 @@ func handleFun(con net.Conn, buf []byte, cunt int) error {
 		return err
 	}
 	return nil
-}
+}*/
 
 /**
 start a server
@@ -77,7 +79,7 @@ func (s *Server) Start() {
 					}
 				}()*/
 			//bind our business and connection
-			newConnection := NewConnection(tcp, connId, handleFun)
+			newConnection := NewConnection(tcp, connId, s.Router)
 			connId++
 			//start connection
 			newConnection.Start()
@@ -96,6 +98,10 @@ func (s *Server) Server() {
 	//block
 	select {}
 }
+func (s *Server) AddRouter(router ziface.IRouter) {
+	s.Router = router
+	fmt.Println("server add router success")
+}
 
 func NewServer(name string) ziface.IServer {
 	return &Server{
@@ -103,5 +109,6 @@ func NewServer(name string) ziface.IServer {
 		IPVersion: "tcp4",
 		IP:        "0.0.0.0",
 		Port:      8999,
+		Router:    nil,
 	}
 }
